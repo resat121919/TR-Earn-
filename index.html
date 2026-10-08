@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TR Earn</title>
+
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #f1f5f9;
+      color: #111827;
+      padding: 20px;
+    }
+
+    .app {
+      max-width: 450px;
+      margin: auto;
+    }
+
+    .header {
+      text-align: center;
+      padding: 25px 10px;
+    }
+
+    .logo {
+      width: 75px;
+      height: 75px;
+      border-radius: 50%;
+      background: #229ed9;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 25px;
+      font-weight: bold;
+      margin: auto;
+    }
+
+    h1 {
+      margin-top: 12px;
+    }
+
+    .card {
+      background: white;
+      padding: 20px;
+      border-radius: 18px;
+      margin-top: 15px;
+      box-shadow: 0 5px 20px rgba(0,0,0,.08);
+    }
+
+    .balance {
+      text-align: center;
+      font-size: 35px;
+      font-weight: bold;
+      margin: 15px 0;
+    }
+
+    button {
+      width: 100%;
+      padding: 15px;
+      border: none;
+      border-radius: 12px;
+      background: #229ed9;
+      color: white;
+      font-size: 17px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    button:active {
+      transform: scale(.98);
+    }
+
+    .user {
+      text-align: center;
+      margin-top: 10px;
+      color: #64748b;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="app">
+
+  <div class="header">
+    <div class="logo">TR</div>
+    <h1>TR Earn</h1>
+    <p class="user" id="user">Loading...</p>
+  </div>
+
+  <div class="card">
+    <p>💰 Your Balance</p>
+
+    <div class="balance">
+      <span id="balance">0</span> TRX
+    </div>
+
+    <button onclick="earn()">
+      ⚡ Earn Now
+    </button>
+
+    <button onclick="withdraw()">
+      💸 Withdraw
+    </button>
+  </div>
+
+</div>
+
+<script>
+
+  const tg = window.Telegram.WebApp;
+
+  tg.ready();
+  tg.expand();
+
+  let balance = 0;
+
+  // Telegram user information
+  const user = tg.initDataUnsafe?.user;
+
+  if (user) {
+    document.getElementById("user").innerText =
+      "Hello, " + (user.first_name || "User") +
+      " • ID: " + user.id;
+  } else {
+    document.getElementById("user").innerText =
+      "Telegram user not detected";
+  }
+
+  function earn() {
+
+    balance += 1;
+
+    document.getElementById("balance").innerText = balance;
+
+    tg.showAlert("🎉 আপনি 1 TRX Earn করেছেন!");
+  }
+
+  function withdraw() {
+
+    if (balance < 10) {
+      tg.showAlert("❌ Minimum withdrawal 10 TRX");
+      return;
+    }
+
+    tg.showAlert(
+      "💸 Withdrawal request তৈরি হয়েছে!"
+    );
+  }
+
+</script>
+
+</body>
+</html>
