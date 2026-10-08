@@ -1,165 +1,84 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="bn">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>TR Earn</title>
-
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
-
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    body {
-      font-family: Arial, sans-serif;
-      background: #f1f5f9;
-      color: #111827;
-      padding: 20px;
-    }
-
-    .app {
-      max-width: 450px;
-      margin: auto;
-    }
-
-    .header {
-      text-align: center;
-      padding: 25px 10px;
-    }
-
-    .logo {
-      width: 75px;
-      height: 75px;
-      border-radius: 50%;
-      background: #229ed9;
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 25px;
-      font-weight: bold;
-      margin: auto;
-    }
-
-    h1 {
-      margin-top: 12px;
-    }
-
-    .card {
-      background: white;
-      padding: 20px;
-      border-radius: 18px;
-      margin-top: 15px;
-      box-shadow: 0 5px 20px rgba(0,0,0,.08);
-    }
-
-    .balance {
-      text-align: center;
-      font-size: 35px;
-      font-weight: bold;
-      margin: 15px 0;
-    }
-
-    button {
-      width: 100%;
-      padding: 15px;
-      border: none;
-      border-radius: 12px;
-      background: #229ed9;
-      color: white;
-      font-size: 17px;
-      font-weight: bold;
-      cursor: pointer;
-      margin-top: 10px;
-    }
-
-    button:active {
-      transform: scale(.98);
-    }
-
-    .user {
-      text-align: center;
-      margin-top: 10px;
-      color: #64748b;
-    }
-  </style>
+  <link rel="stylesheet" href="/styles.css">
 </head>
-
 <body>
+  <main class="app">
+    <header class="top">
+      <div>
+        <div class="brand">TR <span>Earn</span></div>
+        <div id="hello" class="muted">Loading...</div>
+      </div>
+      <button id="themeBtn" class="icon-btn">☾</button>
+    </header>
 
-<div class="app">
+    <section class="hero card">
+      <div class="label">Your balance</div>
+      <div class="balance"><span id="balance">0</span> <small>TRP</small></div>
+      <div class="muted">TR Points</div>
+      <button id="checkinBtn" class="primary">⚡ Daily Check-in</button>
+    </section>
 
-  <div class="header">
-    <div class="logo">TR</div>
-    <h1>TR Earn</h1>
-    <p class="user" id="user">Loading...</p>
-  </div>
+    <nav class="tabs">
+      <button data-page="home" class="tab active">🏠<span>Home</span></button>
+      <button data-page="tasks" class="tab">🎯<span>Tasks</span></button>
+      <button data-page="ref" class="tab">👥<span>Referral</span></button>
+      <button data-page="wallet" class="tab">💸<span>Wallet</span></button>
+    </nav>
 
-  <div class="card">
-    <p>💰 Your Balance</p>
+    <section id="home" class="page">
+      <div class="grid">
+        <div class="card stat"><b id="taskCount">0</b><span>Tasks done</span></div>
+        <div class="card stat"><b id="refCount">0</b><span>Referrals</span></div>
+      </div>
+      <div class="card">
+        <h3>Welcome to TR Earn</h3>
+        <p class="muted">Complete available tasks and earn TR Points. Rewards and withdrawals are controlled by the server.</p>
+      </div>
+    </section>
 
-    <div class="balance">
-      <span id="balance">0</span> TRX
-    </div>
+    <section id="tasks" class="page hidden">
+      <h2>Tasks</h2>
+      <div id="tasksList"></div>
+    </section>
 
-    <button onclick="earn()">
-      ⚡ Earn Now
-    </button>
+    <section id="ref" class="page hidden">
+      <h2>Referral</h2>
+      <div class="card">
+        <div class="label">Your invite link</div>
+        <div id="refLink" class="refbox">Loading...</div>
+        <button id="copyRef" class="secondary">Copy link</button>
+      </div>
+      <div class="card">
+        <h3>How it works</h3>
+        <p class="muted">Invite friends using your personal link. Referral rewards are credited by the server after a valid signup.</p>
+      </div>
+    </section>
 
-    <button onclick="withdraw()">
-      💸 Withdraw
-    </button>
-  </div>
+    <section id="wallet" class="page hidden">
+      <h2>Wallet</h2>
+      <div class="card">
+        <label>Method</label>
+        <select id="method">
+          <option value="telegram">Telegram contact</option>
+          <option value="manual">Manual review</option>
+        </select>
+        <label>Account / Address</label>
+        <input id="address" placeholder="Enter withdrawal account/address">
+        <label>Amount (TRP)</label>
+        <input id="amount" type="number" min="1" placeholder="Minimum 100">
+        <button id="withdrawBtn" class="primary">Request withdrawal</button>
+        <p id="withdrawMsg" class="muted"></p>
+      </div>
+    </section>
 
-</div>
-
-<script>
-
-  const tg = window.Telegram.WebApp;
-
-  tg.ready();
-  tg.expand();
-
-  let balance = 0;
-
-  // Telegram user information
-  const user = tg.initDataUnsafe?.user;
-
-  if (user) {
-    document.getElementById("user").innerText =
-      "Hello, " + (user.first_name || "User") +
-      " • ID: " + user.id;
-  } else {
-    document.getElementById("user").innerText =
-      "Telegram user not detected";
-  }
-
-  function earn() {
-
-    balance += 1;
-
-    document.getElementById("balance").innerText = balance;
-
-    tg.showAlert("🎉 আপনি 1 TRX Earn করেছেন!");
-  }
-
-  function withdraw() {
-
-    if (balance < 10) {
-      tg.showAlert("❌ Minimum withdrawal 10 TRX");
-      return;
-    }
-
-    tg.showAlert(
-      "💸 Withdrawal request তৈরি হয়েছে!"
-    );
-  }
-
-</script>
-
+    <div id="toast" class="toast"></div>
+  </main>
+  <script src="/app.js"></script>
 </body>
 </html>
